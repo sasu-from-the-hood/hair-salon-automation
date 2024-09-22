@@ -71,7 +71,7 @@ class Database {
 
     /**
      * Upsert data: Inserts or updates a row in the table.
-     * @param {string} tableName - The name of the table to upsert into.
+     * @param {string} tableName  The name of the table to upsert into.
      * @param {Object} row - The data to upsert (insert or update).
      * @returns {Object} - Returns status (true if successful) and any error.
      * 
@@ -107,22 +107,39 @@ class Database {
     /**
      * Fetch data by value: Selects data from a table where a specific column matches a given value.
      * @param {string} tableName - The name of the table to query.
-     * @param {string} column - The column to filter by.
-     * @param {string|number} value - The value to match in the column.
+     * @param {conditions} contains 
+     * @code {
+            column1: 'value1',
+            column2: 'value2'
+            };
      * @param {string} selectColumn - The column(s) to select from the table. Defaults to '*' for all columns.
      * @returns {Object} - Returns the data, error, and status (true if successful).
      * 
      * Example: 
      * const result = await db.fetchDataByValue('users', 'name', 'John',"if exist add the colnum to be selected ");
      */
-    async fetchDataByValue(tableName, column, value, selectColumn = '*') {
-        const { data, error } = await this.supabase
-            .from(tableName)
-            .select(selectColumn)
-            .eq(column, value);
+    async fetchDataByValue(tableName, conditions, selectColumn = '*') {
+        // Start the query with the table name and selected columns
+        let query = this.supabase.from(tableName).select(selectColumn);
+
+        // Check if conditions is an object with multiple entries
+        if (typeof conditions === 'object' && !Array.isArray(conditions) && conditions !== null) {
+            // Apply multiple conditions if it's an object with key-value pairs
+            for (const [column, value] of Object.entries(conditions)) {
+                query = query.eq(column, value);
+            }
+        } else {
+            // Handle the single condition case
+            const [column, value] = conditions;
+            query = query.eq(column, value);
+        }
+
+        // Execute the query
+        const { data, error } = await query;
 
         return { data, error, status: !error };
     }
+
 
     /**
      * Call a Postgres function: Executes a Postgres function and returns the result.
