@@ -103,6 +103,7 @@ callback.get('/',
     passport.authenticate('google', { failureRedirect: '/sign-up', session: false }),
     async (req, res) => {
         const token = await createTokens(req.user);
+        res.render
         res.status(201).json({
             message: 'Google OAuth successful',
             token,
