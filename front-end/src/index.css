@@ -1,3 +1,78 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+/* Custom utilities */
+
+@layer utilities {
+  .bg-url {
+    background-image: url("imgs/unsplash_LpbyDENbQQg.png");
+  }
+  .bg-user {
+    background-image: url("imgs/User 03C.png");
+  }
+  .bg-social-media {
+    background-image: url("imgs/Social media logo.png");
+  }
+  .h-18 {
+    height: 4.5rem;
+  }
+}
+
+/* Global styles */
+body {
+  @apply h-screen bg-center bg-cover bg-no-repeat bg-url;
+  height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+input {
+  @apply px-4 py-2 rounded-md border border-gray-300 outline-none focus:border-sky-500 transition-all duration-300;
+}
+.or-separator {
+  @apply flex justify-center items-center w-full mt-4;
+}
+
+.or-separator::before,
+.or-separator::after {
+  @apply content-none flex-grow h-px bg-gray-300;
+}
+
+.or-separator span {
+  @apply px-4 text-gray-600;
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  nav {
+    @apply px-2;
+  }
+
+  .card {
+    @apply w-[90%]  p-7;
+  }
+}
+
+@media (max-width: 400px) {
+  nav {
+    @apply mb-7;
+  }
+  .card {
+    @apply max-w-full p-5;
+  }
+
+  label {
+    @apply mt-2;
+  }
+}
+
+@media (max-width: 360px) {
+  /* body {
+    height: auto;
+  } */
+  .btns button {
+    @apply mr-2;
+  }
+}
