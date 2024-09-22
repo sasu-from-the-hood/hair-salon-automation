@@ -69,9 +69,9 @@ input {
 }
 
 @media (max-width: 360px) {
-  /* body {
+  body {
     height: auto;
-  } */
+  }
   .btns button {
     @apply mr-2;
   }
