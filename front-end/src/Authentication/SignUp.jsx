@@ -7,6 +7,8 @@ import LogoDark from '../images/logo/logo-dark.svg';
 import Logo from '../images/logo/logo.svg';
 import useSignUp from '../hooks/useSignUp';
 
+import './css/style.css'
+
 // Example Google icon
 const GoogleIcon = () => (
   <svg
