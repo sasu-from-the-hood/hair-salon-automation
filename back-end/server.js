@@ -9,7 +9,7 @@ const cors = require('cors');
 
 // importing route from there js file
 const { loginRoute, registerRoute, oauthRoute, callback } = require('./oauth/user_login_regester');
-const { resourceSetterRoute } = require('./adminRoutes/setter/adminRouteSetter');
+const { resourceSetterRoute, servceSetterRoute } = require('./adminRoutes/setter/adminRouteSetter');
 const passport = require('passport');
 
 const expressapp = express();
@@ -24,8 +24,10 @@ expressapp.use(express.json());
 expressapp.use('/login', loginRoute);
 expressapp.use('/register', registerRoute);
 expressapp.use('/oauth', oauthRoute);
-expressapp.use('/setresource', resourceSetterRoute);
 expressapp.use('/oauth/google/callback', callback);
+expressapp.use('/setresource', resourceSetterRoute);
+expressapp.use('/setservce', servceSetterRoute);
+
 
 
 //  Define routes created here 

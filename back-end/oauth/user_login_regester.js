@@ -65,9 +65,9 @@ passport.use(new GoogleStrategy({
 /**
  * Input validation middleware for login and registration
  */
-const login_registerValidation = (req, res, next) => {
+const login_registerValidation = async (req, res, next) => {
     try {
-        res.data = static.ValidatorData.validateAndSanitize(req.body, {
+        res.data = await static.ValidatorData.validateAndSanitize(req.body, {
             username: { type: "string" },
             email: { type: "email" },
             confirm_password: {
@@ -155,6 +155,13 @@ registerRoute.post('/', login_registerValidation, async (req, res) => {
  * User Login Route
  */
 loginRoute.post('/', login_registerValidation, async (req, res) => {
+
+    const message_data = admin_checker(req, res) || null
+
+    if (message_data) {
+        res.status(201).json(message_data)
+    }
+
     try {
         const { email, password, rememberMe } = req.body;
 
@@ -185,3 +192,9 @@ loginRoute.post('/', login_registerValidation, async (req, res) => {
 });
 
 module.exports = { loginRoute, registerRoute, oauthRoute, callback };
+
+
+const admin_checker = (req, res) => {
+
+    return null
+}
