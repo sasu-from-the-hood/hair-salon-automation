@@ -4,15 +4,12 @@ import SignUp from "./Authentication/SignUp";
 import PageNotExist from "./PageNotExist";
 import Admin from "./Admin/Admin";
 import LandingPage from "./Landing page/LandingPage";
-import Homepage from "./Homepage/Header";
-
 export default function App() {
   return (
     <div>
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<Homepage />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/admin/*" element={<Admin />} />
