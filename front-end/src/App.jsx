@@ -10,7 +10,7 @@ export default function App() {
         <Routes>
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/admin/*" element={<Admin />} />
+          {/* <Route path="/admin/*" element={<Admin />} /> */}
 
           <Route path="*" element={<PageNotExist />} />
         </Routes>

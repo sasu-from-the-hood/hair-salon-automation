@@ -140,30 +140,30 @@ function validateInput(data, filters) {
 // Example usage:
 
 // Example filters
-// const filters = {
-//     name: { type: "String", required: true, minLength: 2 },
-//     age: { type: "Number", min: 18, max: 65, score: 100 },
-//     email: { type: "String", required: true, pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/ },
-//     isActive: { type: "Boolean", value: true },
-//     tags: { type: "Array" },
-//     score: { type: "Number", score: 100 },
-// };
+const filters = {
+    name: { type: "String", required: true, minLength: 2 },
+    age: { type: "Number", min: 18, max: 65, score: 100 },
+    email: { type: "String", required: true, pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/ },
+    isActive: { type: "Boolean", value: true },
+    tags: { type: "Array" },
+    score: { type: "Number", score: 100 },
+};
 
-// // Example data
-// const data = {
-//     name: "K",
-//     age: 17, // Should fail as it's less than 18
-//     email: "kalebexample.com", // Should fail as it's not a valid email
-//     isActive: false, // Should fail as it's not true
-//     tags: "not an array", // Should fail because it's not an array
-//     score: 99, // Should fail because it's not exactly 100
-// };
+// Example data
+const data = {
+    name: "K",
+    age: 17, // Should fail as it's less than 18
+    email: "kalebexample.com", // Should fail as it's not a valid email
+    isActive: false, // Should fail as it's not true
+    tags: "not an array", // Should fail because it's not an array
+    score: 99, // Should fail because it's not exactly 100
+};
 
-// // Call validation
-// const errors = validateInput(data, filters);
+// Call validation
+const errors = validateInput(data, filters);
 
-// if (errors) {
-//     console.log("Validation failed with errors:", errors);
-// } else {
-//     console.log("Validation passed!");
-// }
+if (errors) {
+    console.log("Validation failed with errors:", errors);
+} else {
+    console.log("Validation passed!");
+}

@@ -173,37 +173,37 @@ class JSONValidator {
 module.exports = JSONValidator;
 
 // Example usage
-const validator1 = new JSONValidator();
+// const validator1 = new JSONValidator();
 
-const jsonData = {
-    name: "Jo//",
-    age: "30",
-    password: "1",
-    email: "john@example.com",
-    website: "https://example.com",
-    phoneNumber: "123-456-7890",
-    postalCode: "12345-6789",
-    car: "WWW"
-};
+// const jsonData = {
+//     name: "Jo//",
+//     age: "30",
+//     password: "1",
+//     email: "john@example.com",
+//     website: "https://example.com",
+//     phoneNumber: "123-456-7890",
+//     postalCode: "12345-6789",
+//     car: "WWW"
+// };
 
-try {
-    const sanitizedData = validator1.validateAndSanitize(jsonData, {
-        name: { type: "string", maxLength: 50, minLength: 20 },
-        age: { type: 'number', min: 18, max: 120 },
-        email: { type: 'email' },
-        website: { type: 'url' },
-        phoneNumber: { type: 'pattern', pattern: '^\\d{3}-\\d{3}-\\d{4}$' },
-        password: { type: 'pattern', pattern: '.{1,6}' },
-        car: {
-            type: "custom",
-            function: (value) => {
-                return value.toLowerCase(); // Use toLowerCase() instead of tolowercase()
-            }
-        }
+// try {
+//     const sanitizedData = validator1.validateAndSanitize(jsonData, {
+//         name: { type: "string", maxLength: 50, minLength: 20 },
+//         age: { type: 'number', min: 18, max: 120 },
+//         email: { type: 'email' },
+//         website: { type: 'url' },
+//         phoneNumber: { type: 'pattern', pattern: '^\\d{3}-\\d{3}-\\d{4}$' },
+//         password: { type: 'pattern', pattern: '.{1,6}' },
+//         car: {
+//             type: "custom",
+//             function: (value) => {
+//                 return value.toLowerCase(); // Use toLowerCase() instead of tolowercase()
+//             }
+//         }
 
-    });
+//     });
 
-    console.log('Sanitized data:', sanitizedData);
-} catch (error) {
-    console.error('Validation error:', error.message);
-}
+//     console.log('Sanitized data:', sanitizedData);
+// } catch (error) {
+//     console.error('Validation error:', error.message);
+// }

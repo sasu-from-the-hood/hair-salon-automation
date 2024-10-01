@@ -238,7 +238,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Profile --> */}
 
 
-              {/* <!-- Menu Item Forms --> */}
 
               {/* <!-- Menu Item Tables --> */}
               <li>

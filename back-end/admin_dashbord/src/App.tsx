@@ -4,9 +4,11 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 
+
 import Calendar from './pages/Calendar';
 import Chart from './pages/Chart';
 import Resource from './pages/Resource';
+import ECommerce from './pages/Dashboard/ECommerce';
 
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
@@ -31,13 +33,23 @@ function App() {
   ) : (
     <DefaultLayout>
       <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <PageTitle title="Profile | TailAdmin - Tailwind CSS Admin Dashboard Template" />
+              <ECommerce />
+            </>
+          }
+        />
+
 
         <Route
           path="/dashbord"
           element={
             <>
               <PageTitle title="Profile | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <Profile />
+              <ECommerce />
             </>
           }
         />

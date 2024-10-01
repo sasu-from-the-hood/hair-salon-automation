@@ -40,6 +40,7 @@ CREATE TABLE staff (
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(15) UNIQUE,
+    image_path VARCHAR(15)
     role VARCHAR(50) NOT NULL, -- Specific roles like Esthetician ,Nail Technician,Hair Stylist
     is_active BOOLEAN DEFAULT TRUE,  -- Status to indicate if the staff member is active
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
