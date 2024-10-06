@@ -11,6 +11,10 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily:{
+        syne: ['Syne', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif']
+      },
       height: {
         18: "4.5rem",
       },
