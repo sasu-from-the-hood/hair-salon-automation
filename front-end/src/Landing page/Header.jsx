@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import vector from '../images/icon/vector.png';
 
@@ -23,7 +23,7 @@ function Header() {
   }, []);
 
   return (
-    <>
+    <div>
       <header className="bg-white shadow-md">
         <div className="container mx-auto flex justify-between items-center p-2 md:p-4">
           <div className="flex items-center space-x-1 md:space-x-2">
@@ -73,7 +73,7 @@ function Header() {
           </nav>
         </div>
       </header>
-    </>
+    </div>
   );
 }
 

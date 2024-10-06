@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import rectangle from "../images/services/rectangle.png";
 import wash from "../images/services/wash.jpg";
 import brush from "../images/services/images.png";
 import download from "../images/services/download.png";
+import { Link } from 'react-router-dom';
 
 function Hero() {
   const slides = [
@@ -39,9 +40,9 @@ function Hero() {
           <span className="text-orange-500">body</span> the care and attention<br />
         </p>
         <p className="text-orange-500 font-bold text-3xl md:text-6xl">they deserve</p>
-        <button className="mt-10 px-6 py-2 bg-black text-white font-bold rounded-full">
-          Book now
-        </button>
+        <Link to={"/Book-now"} className='p-[10px] mt-9 rounded-lg bg-black text-white'>
+          Book Now
+        </Link>
       </div>
       <div className="relative w-[1312px] h-[666px] mx-auto overflow-hidden rounded-[2px]">
         <button className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black text-white p-2 rounded-full" onClick={prevSlide}>❮</button>

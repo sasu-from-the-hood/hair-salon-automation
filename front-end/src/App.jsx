@@ -5,6 +5,7 @@ import PageNotExist from "./PageNotExist";
 import Admin from "./Admin/Admin";
 import LandingPage from "./Landing page/LandingPage";
 import { AiFillFacebook, AiFillInstagram, AiFillTikTok } from "react-icons/ai";
+import Booking from "./Booking/Book-now";
 export default function App() {
   return (
     <div>
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/admin/*" element={<Admin />} />
           <Route path="*" element={<PageNotExist />} />
+          <Route path="/book-now" element={<Booking/>}/>
         </Routes>
 
         <div className="bg-orange-200 justify-center items-center flex pb-30 flex-row space-x-5 pb-2 text-3xl">
