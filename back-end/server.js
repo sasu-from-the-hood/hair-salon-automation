@@ -8,9 +8,9 @@ const cors = require('cors');
 
 
 // importing route from there js file
-const { loginRoute, registerRoute, oauthRoute, callback } = require('./oauth/user_login_regester');
-const { resourceSetterRoute, servceSetterRoute } = require('./adminRoutes/setter/adminRouteSetter');
-const passport = require('passport');
+const { loginRoute, registerRoute, oauthRoute, callback, forgetpassword, verifyEmail, resetpassword } = require('./oauth/user_login_regester');
+const { DeleteTable, resourceSetterRoute, servceSetterRoute, employsetterRoute, updateResoureRoute, updateServceRoute, updateEmployRoute } = require('./adminRoutes/setter/adminRouteSetter');
+
 
 const expressapp = express();
 
@@ -20,13 +20,25 @@ expressapp.use(express.json());
 // Uncomment for serving static files
 // expressapp.use(express.static(path.join(__dirname, 'build')));
 
-// Define routes irom imports
+
+// Define routes imported
 expressapp.use('/login', loginRoute);
 expressapp.use('/register', registerRoute);
 expressapp.use('/oauth', oauthRoute);
 expressapp.use('/oauth/google/callback', callback);
+expressapp.use('/forgetPassword', forgetpassword);
+expressapp.use('./verifyEmail', verifyEmail)
+expressapp.use('./resetpassword', resetpassword)
+
+// admin routes
 expressapp.use('/setresource', resourceSetterRoute);
 expressapp.use('/setservce', servceSetterRoute);
+expressapp.use('/setemploy', employsetterRoute);
+expressapp.use('/updateResource', updateResoureRoute);
+expressapp.use('/updateServce', updateServceRoute);
+expressapp.use('/updateEmploy', updateEmployRoute);
+expressapp.use('/delete', DeleteTable);
+
 
 
 
@@ -42,6 +54,8 @@ expressapp.get('/home', (req, res) => {
         woo: 223,
     });
 });
+
+
 
 // Error handling middleware
 expressapp.use((err, req, res, next) => {

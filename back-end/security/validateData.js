@@ -9,43 +9,50 @@ class JSONValidator {
     }
 
     /**
-    * Validate and sanitize JSON data.
-    * @param {Object} jsonData - The JSON data to validate and sanitize.
-    * @param {Object} options - Dynamic options for filtering and validation.
-    * @returns {Object} - The sanitized and validated JSON data.
-    * @throws {Error} - If the JSON data is invalid or contains potential attacks.
-    * @example    const sanitizedData = validator1.validateAndSanitize(jsonData, {
-        name: { type: "string", maxLength: 50 },
-        age: { type: 'number', min: 18, max: 120 },
-        email: { type: 'email' },
-        website: { type: 'url' },
-        phoneNumber: { type: 'pattern', pattern: '^\\d{3}-\\d{3}-\\d{4}$' },
-        password: { type: 'pattern', pattern: '.{1,6}' },
-        car: {
-            type: "custom",
-            function: (value) => {
-                return value.toLowerCase(); // Use toLowerCase() instead of tolowercase()
-            }
+     * Validate and sanitize JSON data.
+     * @example
+     * { type, maxLength, minLength, min, max, pattern, enum: enumValues, function: customFunction } 
+     *  const validatorInstance = new JSONValidator({
+    email: { type: 'email' },
+    name: { type: 'string', maxLength: 50, minLength: 2 },
+    age: { type: 'number', min: 18, max: 65 },
+    website: { type: 'url' },
+    interests: { type: 'string', maxLength: 30 },  // To handle string arrays like interests
+    friends: { type: "string", minLength: 3 }
+
+});
+
+const data = {
+    email: ['test@example.com'],
+    name: 'John Doe',
+    age: 28,
+    website: ['https://example.com'],
+    interests: ['coding', 'reading', 'gaming'],
+    friends: ['Alice', 'Bob', '']
+};
+     * @param {Object|Array} jsonData - The JSON data (object or array) to validate and sanitize.
+     * @param {Object} options - Dynamic options for filtering and validation.
+     * @param {string} [parentKey=''] - The parent key for nested objects or arrays (used for error reporting).
+     * @returns {Object|Array} - The sanitized and validated JSON data.
+     * @throws {Error} - If the JSON data is invalid or contains potential attacks.
+     */
+    validateAndSanitize(jsonData, options = {}, parentKey = '') {
+        if (jsonData === null) {
+            throw new Error('Invalid JSON data: Expected an object or array.');
         }
 
-    });
-    */
-    validateAndSanitize(jsonData, options = {}) {
-        if (typeof jsonData !== 'object' || jsonData === null) {
-            throw new Error('Invalid JSON data: Expected an object.');
-        }
-
-        const sanitizedData = {};
+        const sanitizedData = Array.isArray(jsonData) ? [] : {};
         const mergedOptions = { ...this.defaultOptions, ...options };
         this.errors = []; // Reset errors array
 
-        const entries = Object.entries(jsonData);
+        const entries = Array.isArray(jsonData) ? jsonData.entries() : Object.entries(jsonData);
         if (entries.length === 0) {
             throw new Error('The input is empty, fill all inputs.');
         }
 
         for (const [key, value] of entries) {
             let sanitizedValue = value;
+            const currentKey = parentKey ? `${parentKey}.${key}` : key;
 
             // Apply XSS protection to string values
             if (typeof sanitizedValue === 'string') {
@@ -55,28 +62,67 @@ class JSONValidator {
             // SQL Injection Check for string values
             if (typeof sanitizedValue === 'string' && !this.isSQLSafe(sanitizedValue)) {
                 this.errors.push({
-                    field: key,
+                    field: currentKey,
+                    type: 'sql',
                     errorMessage: 'Potential SQL injection detected.',
                     suggestion: 'Use parameterized queries for SQL safety.'
                 });
             }
 
-            // Apply dynamic filtering based on options
-            try {
-                if (mergedOptions[key]) {
-                    sanitizedValue = this.applyFilter(key, sanitizedValue, mergedOptions[key]);
-                } else if (mergedOptions['*']) {
-                    sanitizedValue = this.applyFilter(key, sanitizedValue, mergedOptions['*']);
-                }
-            } catch (err) {
-                this.errors.push({
-                    field: key,
-                    errorMessage: err.message,
-                    suggestion: 'Check filter options and ensure they match the expected type.'
+            // Handle arrays recursively
+            if (Array.isArray(sanitizedValue)) {
+                // Apply dynamic validation to each element of the array
+                sanitizedValue = sanitizedValue.map((item, index) => {
+                    const elementOptions = mergedOptions[key] || {};
+
+                    // Recursively validate arrays and objects within the array
+                    if (typeof item === 'object' && item !== null) {
+                        return this.validateAndSanitize(item, elementOptions, `${currentKey}[${index}]`);
+                    }
+
+                    // Apply type-based validation (email, string, number, etc.)
+                    try {
+                        if (elementOptions.type) {
+                            return this.applyFilter(`${currentKey}[${index}]`, item, elementOptions);
+                        }
+                    } catch (err) {
+                        this.errors.push({
+                            index,
+                            field: currentKey,
+                            errorMessage: err.message,
+                            suggestion: `Check validation rules for the field ${currentKey}[${index}].`
+                        });
+                    }
+
+                    return item; // Return the original item if no validation rule applies
                 });
             }
+            // Handle objects recursively
+            else if (typeof sanitizedValue === 'object' && sanitizedValue !== null) {
+                sanitizedValue = this.validateAndSanitize(sanitizedValue, mergedOptions[key] || {}, currentKey);
+            }
+            // Apply dynamic filtering based on options
+            else {
+                try {
+                    if (mergedOptions[key]) {
+                        sanitizedValue = this.applyFilter(currentKey, sanitizedValue, mergedOptions[key]);
+                    } else if (mergedOptions['*']) {
+                        sanitizedValue = this.applyFilter(currentKey, sanitizedValue, mergedOptions['*']);
+                    }
+                } catch (err) {
+                    this.errors.push({
+                        field: currentKey,
+                        errorMessage: err.message,
+                        suggestion: 'Check filter options and ensure they match the expected type.'
+                    });
+                }
+            }
 
-            sanitizedData[key] = sanitizedValue;
+            if (Array.isArray(jsonData)) {
+                sanitizedData.push(sanitizedValue);
+            } else {
+                sanitizedData[key] = sanitizedValue;
+            }
         }
 
         if (this.errors.length > 0) {
@@ -109,14 +155,14 @@ class JSONValidator {
 
         switch (type) {
             case 'string':
-                if (typeof value !== 'string') throw new Error(`Field ${key} must be a string. was given ${typeof value}`);
+                if (typeof value !== 'string') throw new Error(`Field ${key} must be a string.`);
                 if (maxLength && value.length > maxLength) throw new Error(`Field ${key} exceeds max length of ${maxLength}.`);
                 if (minLength && value.length < minLength) throw new Error(`Field ${key} is below min length of ${minLength}.`);
                 break;
 
             case 'number':
                 value = Number(value);
-                if (isNaN(value)) throw new Error(`Field ${key} must be a number. was given ${typeof value}`);
+                if (isNaN(value)) throw new Error(`Field ${key} must be a number.`);
                 if (min !== undefined && value < min) throw new Error(`Field ${key} must be >= ${min}.`);
                 if (max !== undefined && value > max) throw new Error(`Field ${key} must be <= ${max}.`);
                 break;
@@ -153,8 +199,11 @@ class JSONValidator {
                 }
                 break;
 
+            case 'required':
+                if (!value) throw new Error(`Field ${key} is required.`);
+                break;
+
             default:
-                // No specific filter
                 break;
         }
 
@@ -163,47 +212,46 @@ class JSONValidator {
 
     /**
      * Set default options for the validator.
-     * @param {Object} options - Default options to be applied.
+     * @param {Object} options - Default options to be applied to all fields.
      */
     setDefaultOptions(options) {
-        this.defaultOptions = options;
+        this.defaultOptions = { ...this.defaultOptions, ...options };
+    }
+
+    /**
+     * Get any validation errors encountered during processing.
+     * @returns {Array} - An array of error messages.
+     */
+    getErrors() {
+        return this.errors;
     }
 }
 
 module.exports = JSONValidator;
 
-// Example usage
-// const validator1 = new JSONValidator();
+// // Example usage
+// const validatorInstance = new JSONValidator({
+//     email: { type: 'email' },
+//     name: { type: 'string', maxLength: 50, minLength: 2 },
+//     age: { type: 'number', min: 18, max: 65 },
+//     website: { type: 'url' },
+//     interests: { type: 'string', minLength: 3, maxLength: 30 },  // To handle string arrays like interests
+//     friends: { type: "string", minLength: 3 }
 
-// const jsonData = {
-//     name: "Jo//",
-//     age: "30",
-//     password: "1",
-//     email: "john@example.com",
-//     website: "https://example.com",
-//     phoneNumber: "123-456-7890",
-//     postalCode: "12345-6789",
-//     car: "WWW"
+// });
+
+// const data = {
+//     email: ['test@example.com'],
+//     name: 'John Doe',
+//     age: 28,
+//     website: ['https://example.com'],
+//     interests: ['coding', 'reading', ''],
+//     friends: ['Alice', 'Bob', 'www']
 // };
 
 // try {
-//     const sanitizedData = validator1.validateAndSanitize(jsonData, {
-//         name: { type: "string", maxLength: 50, minLength: 20 },
-//         age: { type: 'number', min: 18, max: 120 },
-//         email: { type: 'email' },
-//         website: { type: 'url' },
-//         phoneNumber: { type: 'pattern', pattern: '^\\d{3}-\\d{3}-\\d{4}$' },
-//         password: { type: 'pattern', pattern: '.{1,6}' },
-//         car: {
-//             type: "custom",
-//             function: (value) => {
-//                 return value.toLowerCase(); // Use toLowerCase() instead of tolowercase()
-//             }
-//         }
-
-//     });
-
-//     console.log('Sanitized data:', sanitizedData);
-// } catch (error) {
-//     console.error('Validation error:', error.message);
+//     const sanitizedData = validatorInstance.validateAndSanitize(data);
+//     console.log('Sanitized Data:', sanitizedData);
+// } catch (err) {
+//     console.error('Validation Errors:', JSON.parse(err.message));
 // }

@@ -115,24 +115,37 @@ class Database {
             };
      * @param {string} selectColumn - The column(s) to select from the table. Defaults to '*' for all columns.
      * @returns {Object} - Returns the data, error, and status (true if successful).
+     *  @param {logicalOperator} for and or
      * 
      * Example: 
      * const result = await db.fetchDataByValue('users', 'name', 'John',"if exist add the colnum to be selected ");
      */
-    async fetchDataByValue(tableName, conditions, selectColumn = '*') {
+    async fetchDataByValue(tableName, conditions, logicalOperator = "and", selectColumn = '*') {
         // Start the query with the table name and selected columns
         let query = this.supabase.from(tableName).select(selectColumn);
 
         // Check if conditions is an object with multiple entries
         if (typeof conditions === 'object' && !Array.isArray(conditions) && conditions !== null) {
+            // Create an array to hold condition strings for OR operator
+            const conditionStrings = [];
+
             // Apply multiple conditions if it's an object with key-value pairs
             for (const [column, value] of Object.entries(conditions)) {
-                query = query.eq(column, value);
+                if (logicalOperator !== "and") {
+                    conditionStrings.push(`${column}.eq.${value}`);
+                } else {
+                    query = query.eq(column, value);
+                }
             }
-        } else {
+
+            // If logical operator is OR, apply conditions together
+            if (conditionStrings.length > 0 && logicalOperator !== "and") {
+                query = query.or(conditionStrings.join(','));
+            }
+        } else if (Array.isArray(conditions) && conditions.length === 2) {
             // Handle the single condition case
             const [column, value] = conditions;
-            query = query.eq(column, value);
+            query = (logicalOperator !== "and") ? query.or(`${column}.eq.${value}`) : query.eq(column, value);
         }
 
         // Execute the query

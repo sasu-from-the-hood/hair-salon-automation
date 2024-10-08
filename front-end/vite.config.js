@@ -21,6 +21,15 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/oauth/, '/oauth'),
       },
+      "/forgetPassword": {
+        target: 'http://localhost:5002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/forgetPassword/, '/forgetPassword'),
+      }, "/google-login": {
+        target: 'http://localhost:5002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/google-login/, '/google-login'),
+      }
     },
   },
 });

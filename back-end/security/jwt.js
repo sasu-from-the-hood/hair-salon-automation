@@ -3,7 +3,68 @@ const { db } = require('../static');
 const User = require('../static').db;
 require('dotenv').config();
 
-// Middleware to authenticate JWT
+/**
+ * always  if the status is 403 then login requried so redirect them to /signin
+ */
+
+// admin authenticateJWTForAdmin
+
+const authenticateJWTForAdmin = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(403).json({ message: 'No user provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+        return res.status(403).json({ message: 'No user provided' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+        if (err) {
+            if (err.name === 'TokenExpiredError') {
+                // Token expired, check for refresh token
+                const refreshToken = await db.fetchDataByValue("refreshToken", { userId: user.id });
+
+                if (!refreshToken) {
+                    return res.status(403).json({ message: 'login requried' });
+                }
+
+                try {
+                    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+                    const { id } = decoded;
+
+                    // Fetch admin user from the database
+                    const foundUser = await User.fetchDataByValue("admin", { userId: id });
+
+                    if (!foundUser) {
+                        return res.status(403).json({ message: 'Admin not found' });
+                    }
+
+                    return res.status(403).json({ message: 'login required' });
+
+                } catch (err) {
+                    return res.status(403).json({ message: 'Invalid or expired login status' });
+                }
+            } else {
+                return res.status(403).json({ message: 'Invalid user' });
+            }
+        } else {
+
+            const foundUser = await User.fetchDataByValue("admin", { userId: user.id });
+            if (!foundUser) {
+                return res.status(403).json({ message: 'Unauthorized' });
+            }
+
+            req.user = foundUser;
+            next();
+        }
+    });
+};
+
+
+// Middleware to authenticate JWT clinits
 const authenticateJWT = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -16,7 +77,7 @@ const authenticateJWT = async (req, res, next) => {
                 const refreshToken = await db.fetchDataByValue("refreshToken", { userId: user.id, })
 
                 if (!refreshToken) {
-                    return res.status(401).json({ message: 'Refresh token required' });
+                    return res.status(403).json({ message: 'login required' });
                 }
 
                 try {
@@ -27,7 +88,7 @@ const authenticateJWT = async (req, res, next) => {
                     const foundUser = await User.fetchDataByValue("user", { userId: id });
 
                     if (!foundUser) {
-                        return res.status(404).json({ message: 'User not found' });
+                        return res.status(403).json({ message: 'User not found' });
                     }
 
                     // Generate new tokens
@@ -45,10 +106,10 @@ const authenticateJWT = async (req, res, next) => {
 
                     next();
                 } catch (err) {
-                    return res.status(403).json({ message: 'Invalid or expired refresh token' });
+                    return res.status(403).json({ message: 'Invalid user login' });
                 }
             } else if (err) {
-                return res.status(403).json({ message: 'Invalid token' });
+                return res.status(403).json({ message: 'Invalid user' });
             } else {
                 // Token valid, proceed
                 req.user = user;
@@ -56,7 +117,7 @@ const authenticateJWT = async (req, res, next) => {
             }
         });
     } else {
-        res.status(401).json({ message: 'No token provided' });
+        res.status(401).json({ message: 'login reqired' });
     }
 };
 
@@ -93,4 +154,4 @@ const createTokens = async (user) => {
     return { accessToken };
 };
 
-module.exports = { authenticateJWT, createTokens };
+module.exports = { authenticateJWT, createTokens, authenticateJWTForAdmin };
