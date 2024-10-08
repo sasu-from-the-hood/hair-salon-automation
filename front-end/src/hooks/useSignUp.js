@@ -105,8 +105,8 @@ const useSignUp = () => {
       if (response.ok) {
         const data = await response.json();
         toast.success(data.message || "Sign up successful!");
-        sessionStorage.setItem(usertoken, data.token);
-        sessionStorage.setItem(accessToken, data.accessToken);
+        sessionStorage.setItem("usertoken", data.token);
+        sessionStorage.setItem("accessToken", data.accessToken);
         window.location = data.Redirect;
       } else {
         const errorData = await response.json();
