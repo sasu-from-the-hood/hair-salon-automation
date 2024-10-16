@@ -4,6 +4,7 @@ import Datepicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendarAlt } from 'react-icons/fa'
 import { useForm } from 'react-hook-form';
+// eslint-disable-next-line react/prop-types
 function CustomInput({ value, onClick }) {
     return (
         <div className='flex'>
@@ -38,10 +39,8 @@ export default function Booking() {
                 bg-center '
                 style={{ backgroundImage: `url(${bookingImage})` }}
             >
-                <div className="absolute inset-0 bg-black/50"></div> {/* Dark overlay */}
+                <div className="absolute inset-0 bg-black/50"></div>
                 <div className="relative z-10 text-white p-10">
-
-                    {/* all booking form */}
                     <div className=' bg-[#1E1E1EF2] p-10 max-w-[55rem] absolute left-28 top-8 ' action="">
                         <div className='text-center'>
                             <h1 className='font-syne text-[28px] line'>Makeup Appointment Form</h1>
