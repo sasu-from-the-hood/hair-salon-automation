@@ -1,5 +1,5 @@
-import React from 'react'
-import icon from "../../public/footer-image/Vector.png";
+import React from "react";
+import icon from "/footer-image/Vector.png";
 
 export default function Footer() {
   return (

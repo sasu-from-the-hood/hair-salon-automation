@@ -1,8 +1,7 @@
-import React from 'react'
-import first from "../../public/footer-image/first-2.jfif"
-import second from "../../public/footer-image/second-1.jfif"
-import last from "../../public/footer-image/last-3.jfif"
-
+import React from "react";
+import first from "/footer-image/first-2.jfif";
+import second from "/footer-image/second-1.jfif";
+import last from "/footer-image/last-3.jfif";
 
 export default function OurStory() {
   return (
