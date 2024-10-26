@@ -4,17 +4,17 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 
-
 import Calendar from './pages/Calendar';
 import Chart from './pages/Chart';
 import Resource from './pages/Resource';
 import ECommerce from './pages/Dashboard/ECommerce';
 
-import Profile from './pages/Profile';
+// import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Tables from './pages/Tables';
 
 import DefaultLayout from './layout/DefaultLayout';
+import EmployeeTable from './pages/empoly';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -43,7 +43,6 @@ function App() {
           }
         />
 
-
         <Route
           path="/dashbord"
           element={
@@ -55,11 +54,11 @@ function App() {
         />
 
         <Route
-          path="/profile"
+          path="/employ"
           element={
             <>
               <PageTitle title="Profile | TailAdmin - Tailwind CSS Admin Dashboard Template" />
-              <Profile />
+              <EmployeeTable />
             </>
           }
         />
@@ -83,7 +82,6 @@ function App() {
             </>
           }
         />
-
 
         <Route
           path="/tables"
@@ -112,7 +110,6 @@ function App() {
             </>
           }
         />
-
       </Routes>
     </DefaultLayout>
   );
