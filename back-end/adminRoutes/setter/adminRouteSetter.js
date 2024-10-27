@@ -64,9 +64,9 @@ const validateAndSanitizeMiddleware = async (req, res, next) => {
 
 // setter routes here 
 
-resourceSetterRoute.post("/", authenticateJWT, validateAndSanitizeMiddleware, (req, res) => {
+resourceSetterRoute.post("/", validateAndSanitizeMiddleware, (req, res) => {
     try {
-        static.db.upsertData("resource", { ...req.body, idPointer: uuidv4() })
+        static.db.upsertData("resource", { ...req.body})
         res.status(200).json({
             message: "added the resource succssfully"
         })
