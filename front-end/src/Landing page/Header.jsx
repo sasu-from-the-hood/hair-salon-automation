@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import vector from '../images/icon/vector.png';
+import vector from '../images/icon/Vector.png';
 
 function Header() {
   useEffect(() => {
