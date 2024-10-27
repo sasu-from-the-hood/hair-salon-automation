@@ -9,6 +9,7 @@ import ForgotPassword from "./Authentication/forgetPassword";
 import LandingPage from "./Landing page/LandingPage";
 import { AiFillFacebook, AiFillInstagram, AiFillTikTok } from "react-icons/ai";
 
+
 export default function App() {
   return (
     <div>
@@ -31,4 +32,3 @@ export default function App() {
     </div>
   );
 }
-
