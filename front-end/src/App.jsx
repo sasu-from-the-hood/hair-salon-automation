@@ -2,13 +2,12 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SignIn from "./Authentication/SignIn";
 import SignUp from "./Authentication/SignUp";
 import PageNotExist from "./PageNotExist";
-import Admin from "./Admin/Admin";
 
 import ForgotPassword from "./Authentication/forgetPassword";
 
-import LandingPage from "./Landing page/LandingPage";
+import LandingPage from "./Pages/LandingPage";
 import { AiFillFacebook, AiFillInstagram, AiFillTikTok } from "react-icons/ai";
-
+import AppointmentForm from "./Pages/Reservation";
 
 export default function App() {
   return (
@@ -18,7 +17,7 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/admin/*" element={<Admin />} />
+          <Route path="/book-now" element={<AppointmentForm />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
           <Route path="*" element={<PageNotExist />} />
         </Routes>
