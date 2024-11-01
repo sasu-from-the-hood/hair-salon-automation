@@ -8,8 +8,8 @@ import ForgotPassword from "./Authentication/forgetPassword";
 import LandingPage from "./Pages/LandingPage";
 import { AiFillFacebook, AiFillInstagram, AiFillTikTok } from "react-icons/ai";
 import AppointmentForm from "./Pages/Reservation";
-// import Form from "./Componets/Common/Form";
-// import Table from "./Componets/Common/Table";
+import Form from "./Componets/Common/Form";
+import Table from "./Componets/Common/Table";
 
 export default function App() {
   return (
@@ -17,8 +17,8 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          {/* <Route path="/insertItem" element={<Form />} /> */}
-          {/* <Route path="/listItem" element={<Table />} /> */}
+          <Route path="/insertItem" element={<Form />} />
+          <Route path="/listItem" element={<Table />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/book-now" element={<AppointmentForm />} />
