@@ -10,6 +10,7 @@ const authenticateJWTForAdmin = require('../../security/jwt');
 
 // setting the routes for diynmaic table getter
 const diynmaicTableGetterRoute = express.Router()
+const getresourecelist = express.Router()
 
 // vildcation for diynmaic table getter
 const vildcateTable = async (req, res, next) => {
@@ -17,6 +18,8 @@ const vildcateTable = async (req, res, next) => {
         table: { type: "required" },
     })
 }
+
+
 
 
 diynmaicTableGetterRoute.post("/", authenticateJWTForAdmin, vildcateTable, async (req, res) => {
@@ -33,6 +36,14 @@ diynmaicTableGetterRoute.post("/", authenticateJWTForAdmin, vildcateTable, async
 })
 
 
+getresourecelist.get("/", authenticateJWTForAdmin , async (req, res) => {
+
+    const data = await static.db.fetchData("resource" , "name,model")
+    res.status(201).json(data)
+
+})
+
+
 
 // exporing the route
-module.exports = { diynmaicTableGetterRoute }
+module.exports = { diynmaicTableGetterRoute,getresourecelist }

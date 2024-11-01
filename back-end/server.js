@@ -10,7 +10,7 @@ const cors = require('cors');
 // importing route from there js file
 const { loginRoute, registerRoute, oauthRoute, callback, forgetpassword, verifyEmail, resetpassword } = require('./oauth/user_login_regester');
 const { DeleteTable, resourceSetterRoute, servceSetterRoute, employsetterRoute, updateResoureRoute, updateServceRoute, updateEmployRoute } = require('./adminRoutes/setter/adminRouteSetter');
-
+const { diynmaicTableGetterRoute,getresourecelist }  = require("./adminRoutes/getter/adminRouteGetter")
 
 const expressapp = express();
 
@@ -30,14 +30,18 @@ expressapp.use('/forgetPassword', forgetpassword);
 expressapp.use('./verifyEmail', verifyEmail)
 expressapp.use('./resetpassword', resetpassword)
 
+
+
 // admin routes
-expressapp.use('/setresource', resourceSetterRoute);
-expressapp.use('/setservce', servceSetterRoute);
-expressapp.use('/setemploy', employsetterRoute);
-expressapp.use('/updateResource', updateResoureRoute);
-expressapp.use('/updateServce', updateServceRoute);
-expressapp.use('/updateEmploy', updateEmployRoute);
-expressapp.use('/delete', DeleteTable);
+expressapp.use('api/admin/setresource', resourceSetterRoute);
+expressapp.use('api/admin/setservce', servceSetterRoute);
+expressapp.use('api/admin/setemploy', employsetterRoute);
+expressapp.use('api/admin/updateResource', updateResoureRoute);
+expressapp.use('api/admin/updateServce', updateServceRoute);
+expressapp.use('api/admin/updateEmploy', updateEmployRoute);
+expressapp.use('api/admin/delete', DeleteTable);
+expressapp.use('api/admin/GetResourceName', getresourecelist );
+expressapp.use('api/admin/diynmaicTableGetter', diynmaicTableGetterRoute );
 
 
 
