@@ -34,29 +34,29 @@ function Hero() {
 
   return (
     <>
-      <div className="flex flex-col justify-center items-center w-full md:w-[979px] h-[378px] mx-auto text-center p-2 md:p-4">
-        <p className="font-bold text-3xl md:text-6xl">
+      <div className="flex flex-col justify-center items-center w-full max-w-[90%] md:max-w-[979px] h-auto md:h-[378px] mx-auto text-center p-4 md:p-6 lg:p-8">
+        <p className="font-bold text-2xl md:text-4xl lg:text-6xl">
           We show your <span className="text-orange-500">skin, hair</span> and
           <br />
           <span className="text-orange-500">body</span> the care and attention
           <br />
         </p>
-        <p className="text-orange-500 font-bold text-3xl md:text-6xl">
+        <p className="text-orange-500 font-bold text-2xl md:text-4xl lg:text-6xl">
           they deserve
         </p>
-        <button className="mt-10 px-6 py-2 bg-black text-white font-bold rounded-full">
+        <button className="mt-6 md:mt-10 px-4 py-2 md:px-6 md:py-2 bg-black text-white font-bold rounded-full">
           Book now
         </button>
       </div>
-      <div className="relative w-[1312px] h-[666px] mx-auto overflow-hidden rounded-[2px]">
+      <div className="relative w-full max-w-[95%] md:max-w-[1312px] h-[50vh] md:h-[666px] mx-auto overflow-hidden rounded-[2px]">
         <button
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black text-white p-2 rounded-full"
+          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black text-white p-2 md:p-3 rounded-full"
           onClick={prevSlide}
         >
           ❮
         </button>
         <button
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black text-white p-2 rounded-full"
+          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black text-white p-2 md:p-3 rounded-full"
           onClick={nextSlide}
         >
           ❯
@@ -74,7 +74,7 @@ function Hero() {
           {slides.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full ${
+              className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${
                 index === current ? "bg-black" : "bg-gray-400"
               }`}
               onClick={() => goToSlide(index)}
