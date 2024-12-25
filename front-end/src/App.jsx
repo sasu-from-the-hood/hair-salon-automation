@@ -2,11 +2,11 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SignIn from "./Authentication/SignIn";
 import SignUp from "./Authentication/SignUp";
 import PageNotExist from "./PageNotExist";
-import Admin from "./Admin/Admin";
+// import Admin from "./Admin/Admin";
 
 import ForgotPassword from "./Authentication/forgetPassword";
 
-import LandingPage from "./Landing page/LandingPage";
+// import LandingPage from "./Landing page/LandingPage";
 import { AiFillFacebook, AiFillInstagram, AiFillTikTok } from "react-icons/ai";
 
 
@@ -15,10 +15,10 @@ export default function App() {
     <div>
       <Router>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          {/* <Route path="/" element={<LandingPage />} /> */}
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/admin/*" element={<Admin />} />
+          {/* <Route path="/admin/*" element={<Admin />} /> */}
           <Route path="/forget-password" element={<ForgotPassword />} />
           <Route path="*" element={<PageNotExist />} />
         </Routes>
