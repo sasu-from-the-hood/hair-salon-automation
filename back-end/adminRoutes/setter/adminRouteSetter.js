@@ -1,11 +1,12 @@
 const express = require('express')
-const static = require('../../static')
+const staticPath = require('../../static')
 const path = require('path');
 const fs = require('fs')
 const sharp = require('sharp'); // for the resizing the image and compressing it to figs
 const { authenticateJWT } = require('../../security/jwt');
 const { v4: uuidv4 } = require('uuid');
 const { table } = require('console');
+const { body } = require('express-validator');
 
 
 // setting the routes
@@ -30,7 +31,7 @@ employsetterRoute.use(express.json())
 
 const validateAndSanitizeMiddleware = async (req, res, next) => {
     try {
-        req.body = await static.ValidatorData.validateAndSanitize(req.body, {
+        req.body = await staticPath.ValidatorData.validateAndSanitize(req.body, {
             // resource inputs validate for setter and update 
             name: { type: 'string' },
             model: { type: 'pattern', pattern: '[a-zA-Z0-9]+' },
@@ -64,9 +65,13 @@ const validateAndSanitizeMiddleware = async (req, res, next) => {
 
 // setter routes here 
 
-resourceSetterRoute.post("/", validateAndSanitizeMiddleware, (req, res) => {
+resourceSetterRoute.post("/", validateAndSanitizeMiddleware, async (req, res) => {
     try {
-        static.db.upsertData("resource", { ...req.body})
+        const resposnce =  await staticPath.db.insertData("resource", { ...req.body,idPointer: uuidv4()})
+
+        if(!resposnce.status){
+            return res.status(400).json({ message: ' error setting a resource', errors: resposnce.error });
+        }
         res.status(200).json({
             message: "added the resource succssfully"
         })
@@ -75,9 +80,26 @@ resourceSetterRoute.post("/", validateAndSanitizeMiddleware, (req, res) => {
     }
 })
 
-servceSetterRoute.post("/", authenticateJWT, validateAndSanitizeMiddleware, (req, res) => {
+
+servceSetterRoute.post("/", validateAndSanitizeMiddleware, async (req, res) => {
+
     try {
-        static.db.upsertData("servce", { ...req.body, idPointer: uuidv4() })
+        let { resource_needed, ...body } = req.body;
+        const idPointer = uuidv4()
+
+        let resposnce =  await staticPath.db.insertData("service", { ...body, idPointer  })
+
+        if(!resposnce.status){
+            return res.status(400).json({ message: ' error on inserting on servce', errors: resposnce.error });
+        } 
+
+        resposnce  =  await staticPath.db.service_resources(resource_needed, idPointer)
+
+        if(!resposnce.status){
+            await staticPath.db.deleteData("servce", {name: "idPointer" , value : idPointer})
+            return res.status(400).json({ message: ' error on the inserting the serivce with resource ', errors: resposnce.error });
+        }
+
         res.status(200).json({
             message: "added the servce succssfully"
         })
@@ -89,7 +111,7 @@ servceSetterRoute.post("/", authenticateJWT, validateAndSanitizeMiddleware, (req
 
 
 
-employsetterRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, async (req, res) => {
+employsetterRoute.post('/', validateAndSanitizeMiddleware, async (req, res) => {
     try {
         if (!req.file.originalname || !req.file.originalname.match(/\.(jpg|jpeg|png)$/)) {
             return res.status(400).json({
@@ -110,7 +132,11 @@ employsetterRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, asyn
 
         req.body.image_path = filePath;
 
-        static.db.upsertData("employ", { ...req.body, idPointer: uuidv4() })
+        const resposnce = await staticPath.db.upsertData("employ", { ...req.body, idPointer: uuidv4() })
+
+        if(!resposnce.status){
+            return res.status(400).json({ message: ' error', errors: resposnce.error });
+        }
 
         res.status(200).json({
             message: "added successfully"
@@ -125,9 +151,16 @@ employsetterRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, asyn
 
 
 // update routes here
-updateResoureRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, (req, res) => {
+updateResoureRoute.post('/', validateAndSanitizeMiddleware, async (req, res) => {
     try {
-        static.db.updateData("resource", req.body, { id: req.body.id })
+       const {idPointer,...body} = req.body
+
+       const resposnce=  await staticPath.db.updateData("resource", body, {name : "idPointer" , value : idPointer } )
+
+        if(!resposnce.status){
+            return res.status(400).json({ message: ' error', errors: resposnce.error });
+        }
+
         res.status(200).json({
             message: "updated successfully"
         })
@@ -137,9 +170,15 @@ updateResoureRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, (re
     }
 })
 
-updateServceRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, (req, res) => {
+updateServceRoute.post('/', validateAndSanitizeMiddleware, async (req, res) => {
     try {
-        static.db.updateData("servce", req.body, { id: req.body.id })
+       const resposnce =  await staticPath.db.updateData("servce", req.body, { id: req.body.id })
+
+        if(!resposnce.status){
+            return res.status(400).json({ message: ' error', errors: resposnce.error });
+        }
+
+
         res.status(200).json({
             message: "updated successfully"
         })
@@ -148,7 +187,7 @@ updateServceRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, (req
     }
 })
 
-updateEmployRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, async (req, res) => {
+updateEmployRoute.post('/', validateAndSanitizeMiddleware, async (req, res) => {
     if (req.file) {
         if (!req.file.originalname || !req.file.originalname.match(/\.(jpg|jpeg|png)$/)) {
             return res.status(400).json({
@@ -182,7 +221,12 @@ updateEmployRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, asyn
         req.body.image_path = filePath;
     }
 
-    static.db.updateData("employ", req.body, { id: req.body.id })
+   const  resposnce=  await staticPath.db.updateData("employ", req.body, { id: req.body.id })
+
+    if(!resposnce.status){
+        return res.status(400).json({ message: ' error', errors: resposnce.error });
+    }
+
     res.status(200).json({
         message: "updated successfully"
     })
@@ -192,20 +236,25 @@ updateEmployRoute.post('/', authenticateJWT, validateAndSanitizeMiddleware, asyn
 
 // route to delete the row from id 
 
-DeleteTable.post("/", authenticateJWT, validateAndSanitizeMiddleware, async (req, res) => {
+DeleteTable.delete("/", validateAndSanitizeMiddleware, async (req, res) => {
 
     const { table, id } = req.body
     const message = null
 
-    if (table && id || !table.includes(static.accessTableBlocked)) {
-        static.db.deleteData(table, { idPointer: id })
+    if (table && id || !table.includes(staticPath.accessTableBlocked)) {
+      const resposnce =  await staticPath.db.deleteData(table, { idPointer: id })
+
+        if(!resposnce.status){
+            return res.status(400).json({ message: ' error', errors: resposnce.error });
+        }
+        
     }
     res.status(300).json(message || {
         error: "",
         null: {
             table: !table,
             id: !id,
-            accessFiled: table.includes(static.accessTableBlocked)
+            accessFiled: table.includes(staticPath.accessTableBlocked)
         }
     })
 

@@ -3,7 +3,7 @@
  */
 
 const express = require('express');
-const static = require('../../static');
+const staticPath = require('../../static');
 const authenticateJWTForAdmin = require('../../security/jwt');
 
 
@@ -12,33 +12,52 @@ const authenticateJWTForAdmin = require('../../security/jwt');
 const diynmaicTableGetterRoute = express.Router()
 const getresourecelist = express.Router()
 
+// diynmaicTableGetterRoute.use(authenticateJWTForAdmin);
+// getresourecelist.use(authenticateJWTForAdmin);
+
+
 // vildcation for diynmaic table getter
 const vildcateTable = async (req, res, next) => {
-    req.body = await static.ValidatorData.validateAndSanitize(req.body, {
-        table: { type: "required" },
-    })
-}
+    try {
+        req.body = await staticPath.ValidatorData.validateAndSanitize(req.body, {
+            table: { type: "required" },
+        });
+        next(); // Proceed to the next middleware/handler
+    } catch (error) {
+        res.status(400).json({ message: "Validation failed", error });
+    }
+};
 
 
 
 
-diynmaicTableGetterRoute.post("/", authenticateJWTForAdmin, vildcateTable, async (req, res) => {
+diynmaicTableGetterRoute.post("/", vildcateTable, async (req, res) => {
+    try {
+        const tables = Array.isArray(req.body.tables)
+            ? req.body.tables
+            : [req.body.tables];
 
-    const tables = (Array.isArray(req.body.tables)) ? req.body.tables : [req.body.tables]
+        const data = await Promise.all(
+            tables.map(async (element) => {
+                if (!staticPath.accessTableBlocked || !element.includes(staticPath.accessTableBlocked)) {
+                    return await staticPath.db.fetchData(element);
+                }
+                return null; // Return null for blocked tables
+            })
+        );
 
-    const data = tables.map(async element => {
-        if (!element.includes(static.accessTableBlocked)) {
-            return await static.db.fetchData(element)
-        }
-    })
-
-    res.status(201).json(await Promise.all(data))
-})
+        res.status(201).json(data.filter(Boolean)); // Filter out null responses
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 
-getresourecelist.get("/", authenticateJWTForAdmin , async (req, res) => {
 
-    const data = await static.db.fetchData("resource" , "name,model")
+getresourecelist.get("/" , async (req, res) => {
+
+    const data = await staticPath.db.fetchData("resource" , "name,model")
     res.status(201).json(data)
 
 })

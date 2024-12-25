@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "debug": "nodemon --inspect server.js"
+    "debug": "nodemon --inspect server.js",
+    "test": "jest --watch",
+    "migrate:fresh" : " node ./uitlls/migration.js  migrate:fresh",
+    "migrate" : " node ./uitlls/migration.js  migrate"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +28,7 @@
     "express-validator": "^7.2.0",
     "google-auth-library": "^9.14.1",
     "jsonwebtoken": "^9.0.2",
+    "knex": "^3.1.0",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.15",
     "nodeman": "^1.1.2",
@@ -39,5 +43,13 @@
     "validator": "^13.12.0",
     "winston": "^3.14.2",
     "xss": "^1.0.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "autocannon": "^8.0.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

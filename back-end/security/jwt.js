@@ -8,7 +8,6 @@ require('dotenv').config();
  */
 
 // admin authenticateJWTForAdmin
-
 const authenticateJWTForAdmin = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
@@ -21,48 +20,45 @@ const authenticateJWTForAdmin = async (req, res, next) => {
         return res.status(403).json({ message: 'No user provided' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
-        if (err) {
-            if (err.name === 'TokenExpiredError') {
-                // Token expired, check for refresh token
+    try {
+        // Verify the access token
+        const user = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Check if the user exists and is an admin
+        const foundUser = await User.fetchDataByValue("admin", { userId: user.id });
+        if (!foundUser) {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
+        req.user = foundUser;
+        next(); // Proceed to the next middleware
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            // Handle token expiration by checking the refresh token
+            try {
                 const refreshToken = await db.fetchDataByValue("refreshToken", { userId: user.id });
 
                 if (!refreshToken) {
-                    return res.status(403).json({ message: 'login requried' });
+                    return res.status(403).json({ message: 'Login required' });
                 }
 
-                try {
-                    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-                    const { id } = decoded;
+                const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+                const foundUser = await User.fetchDataByValue("admin", { userId: decoded.id });
 
-                    // Fetch admin user from the database
-                    const foundUser = await User.fetchDataByValue("admin", { userId: id });
-
-                    if (!foundUser) {
-                        return res.status(403).json({ message: 'Admin not found' });
-                    }
-
-                    return res.status(403).json({ message: 'login required' });
-
-                } catch (err) {
-                    return res.status(403).json({ message: 'Invalid or expired login status' });
+                if (!foundUser) {
+                    return res.status(403).json({ message: 'Admin not found' });
                 }
-            } else {
-                return res.status(403).json({ message: 'Invalid user' });
+
+                req.user = foundUser;
+                next(); // Proceed to the next middleware
+            } catch (refreshError) {
+                return res.status(403).json({ message: 'Invalid or expired login status' });
             }
         } else {
-
-            const foundUser = await User.fetchDataByValue("admin", { userId: user.id });
-            if (!foundUser) {
-                return res.status(403).json({ message: 'Unauthorized' });
-            }
-
-            req.user = foundUser;
-            next();
+            return res.status(403).json({ message: 'Invalid user' });
         }
-    });
+    }
 };
-
 
 // Middleware to authenticate JWT clinits
 const authenticateJWT = async (req, res, next) => {

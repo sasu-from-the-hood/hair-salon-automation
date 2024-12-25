@@ -5,7 +5,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { v4: uuidv4 } = require('uuid'); // For unique user IDs
 const bcrypt = require('bcrypt'); // For password hashing
 const { createTokens } = require('../security/jwt');
-const static = require('../static');
+const staticPath = require('../static');
 const { OAuth2Client } = require('google-auth-library');
 
 
@@ -37,12 +37,12 @@ passport.use(new GoogleStrategy({
             const photo = photos && photos.length > 0 ? photos[0].value : null;
 
             // Check if the user already exists in the database
-            const result = await static.db.fetchDataByValue('user', { 'userId': id });
+            const result = await staticPath.db.fetchDataByValue('user', { 'userId': id });
             const existingUser = result.data
 
             if (!existingUser.length) {
                 // If user doesn't exist, insert the new user
-                const insertResult = await static.db.insertData('user', {
+                const insertResult = await staticPath.db.insertData('user', {
                     userId: id,
                     username: displayName,
                     email: email,
@@ -56,7 +56,7 @@ passport.use(new GoogleStrategy({
                     return done(insertResult.error, null);
                 }
 
-                const newUser = await static.db.fetchDataByValue('user', { 'id': id });
+                const newUser = await staticPath.db.fetchDataByValue('user', { 'id': id });
                 return done(null, newUser.data[0]);
             }
 
@@ -76,7 +76,7 @@ passport.use(new GoogleStrategy({
  */
 const login_registerValidation = async (req, res, next) => {
     try {
-        res.data = await static.ValidatorData.validateAndSanitize(req.body, {
+        res.data = await staticPath.ValidatorData.validateAndSanitize(req.body, {
             username: { type: "string" },
             email: { type: "email" },
             confirm_password: {
@@ -123,7 +123,7 @@ callback.get('/',
 
         const user = req.user[0];
 
-        await static.email.sendEmail(user.email, "wellcome", `
+        await staticPath.email.sendEmail(user.email, "wellcome", `
             <h1>Welcome, ${user.username}!</h1>
             <p>Thank you for signing up. Please finsh the registration process</p>
             <p>If you did not sign up for this account, please ignore this email.</p>
@@ -148,13 +148,13 @@ registerRoute.post('/', login_registerValidation, async (req, res) => {
     try {
         const { name, password, email, phone_number } = req.body;
 
-        const result = await static.db.fetchDataByValue("user", { email, phone_number }, "or");
+        const result = await staticPath.db.fetchDataByValue("user", { email, phone_number }, "or");
         if (result.data.length) throw new Error(JSON.stringify({ errorMessage: 'Your Email Exists', field: "email" }));
 
         const userId = uuidv4();
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const insertResult = await static.db.insertData('user', {
+        const insertResult = await staticPath.db.insertData('user', {
             userId,
             username: name,
             email,
@@ -169,7 +169,7 @@ registerRoute.post('/', login_registerValidation, async (req, res) => {
         const verificationUrl = `${req.protocol}://${req.get('host')}/reset-password?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone_number)}`;
 
 
-        await static.email.sendEmail(email, "Verify Your Email Address", `
+        await staticPath.email.sendEmail(email, "Verify Your Email Address", `
             <h1>Welcome, ${name}!</h1>
             <p>Thank you for signing up. Please verify your email address by clicking the link below:</p>
             <a href="${verificationUrl}" style="display:inline-block;padding:10px 20px;background-color:#4f46e5;color:#fff;border-radius:5px;text-decoration:none;">
@@ -207,7 +207,7 @@ loginRoute.post('/', login_registerValidation, async (req, res) => {
             return res.status(201).json(message_data);
         }
 
-        const data = await static.db.fetchDataByValue("user", { email });
+        const data = await staticPath.db.fetchDataByValue("user", { email });
 
         if (!data.data || data.data.length === 0) {
             throw new Error(JSON.stringify({ errorMessage: 'Invalid email', field: "email" }));
@@ -251,7 +251,7 @@ googleLogin.post('/google-login', async (req, res) => {
         const email = payload.email;
         const username = payload.name;
 
-        const data = await static.db.fetchDataByValue("user", { email, username });
+        const data = await staticPath.db.fetchDataByValue("user", { email, username });
 
         if (!data.data || data.data.length === 0) {
             return res.status(400).json({ error: 'User not found. Please sign up first.' });
@@ -283,7 +283,7 @@ googleLogin.post('/google-login', async (req, res) => {
     try {
         const { email, phone_number, password } = req.body;
 
-        const result = await static.db.fetchDataByValue("user", { email, phone_number: Number(phone_number) });
+        const result = await staticPath.db.fetchDataByValue("user", { email, phone_number: Number(phone_number) });
 
         if (!result.data || result.data.length === 0) {
             return res.status(404).json({
@@ -296,7 +296,7 @@ googleLogin.post('/google-login', async (req, res) => {
         const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
 
         // Send password reset email
-        await static.email.sendEmail(email, "Resetting password", `
+        await staticPath.email.sendEmail(email, "Resetting password", `
             <h1>Reset Your Password</h1>
             <p>You requested to reset your password. Please click the link below to reset it:</p>
             <a href="${resetUrl}" style="display:inline-block;padding:10px 20px;background-color:#4f46e5;color:#fff;border-radius:5px;text-decoration:none;">
@@ -307,7 +307,7 @@ googleLogin.post('/google-login', async (req, res) => {
         `);
 
         // Add reset request to array
-        const reset = new static();
+        const reset = new staticPath();
         reset.addResetRequest({ email, phone_number, password, token });
 
         return res.status(200).json({
@@ -325,7 +325,7 @@ googleLogin.post('/google-login', async (req, res) => {
 
 resetpassword.get("/", async (req, res) => {
     const { email, token } = req.query;
-    const resetEntry = await static.resettingPasswordArray.filter(item =>
+    const resetEntry = await staticPath.resettingPasswordArray.filter(item =>
         item.data.email === email && item.data.token === token
     );
 
@@ -337,10 +337,10 @@ resetpassword.get("/", async (req, res) => {
             return res.status(400).json({ message: "erorr on the restting password try agin" });
         }
 
-        await static.db.upsertData("user", { email, password: hashedPassword, phone_number: resetEntry.data.phone_number });
+        await staticPath.db.upsertData("user", { email, password: hashedPassword, phone_number: resetEntry.data.phone_number });
 
         // Remove an entry by email
-        static.resettingPasswordArray = static.resettingPasswordArray.filter(item => item.data.email !== email);
+        staticPath.resettingPasswordArray = staticPath.resettingPasswordArray.filter(item => item.data.email !== email);
 
         res.redirect('/sign-in');
     }
@@ -355,7 +355,7 @@ resetpassword.get("/", async (req, res) => {
 verifyEmail.get("/", async (req, res) => {
     const { email, phone } = req.query
     try {
-        await static.db.upsertData("user", { email, phone_number: phone, verify: true })
+        await staticPath.db.upsertData("user", { email, phone_number: phone, verify: true })
     } catch (e) {
         res.redirect('/sign-in');
     }
@@ -373,7 +373,7 @@ module.exports = { loginRoute, registerRoute, oauthRoute, callback, forgetpasswo
 
 const admin_checker = async (email, password, rememberMe, res) => {
 
-    const data = await static.db.fetchDataByValue("admin", { email });
+    const data = await staticPath.db.fetchDataByValue("admin", { email });
 
     if (!data.data || data.data.length === 0) {
         return null
