@@ -1,0 +1,488 @@
+openapi: '3.0.3'
+info:
+  title: API Title
+  version: '1.0'
+servers:
+  - url: http://localhost:5002
+paths:
+  /api/admin/setresource:
+    post:
+      summary: Sets a new resource in the system.
+      description: Adds a resource to the database by providing necessary details in the request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the resource.
+                  example: "Soap"
+                model:
+                  type: string
+                  description: The model of the resource.
+                  example: "S123-2056"
+                amount:
+                  type: number
+                  description: The amount of the resource.
+                  example: 150
+                action:
+                  type: string
+                  description: Indicates whether the resource is necessary or unnecessary.
+                  enum: [necessary, unnecessary]
+                  example: "necessary"
+                usage_amount:
+                  type: number
+                  description: The expected usage amount of the resource.
+                  example: 20
+              required:
+                - name
+                - model
+                - amount
+                - action
+                - usage_amount
+      responses:
+        '200':
+          description: Resource added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Resource added successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data."
+
+  /api/admin/setservce:
+    post:
+      summary: Sets a new service in the system.
+      description: Adds a service to the database by providing the required details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the service.
+                  example: "Cleaning hair"
+                time_taken:
+                  type: string
+                  description: The description of the service.
+                  example: "1:30"
+                price:
+                  type: number
+                  description: The price of the service.
+                  example: 120.5
+                resource_needed:
+                  type: object
+                  description: A key-value object where keys are resource IDs and values are quantities required for the service.
+                  example:
+                    11234: 12
+                    3553: 34
+                    56783: 1
+              required:
+                - name
+                - time_taken
+                - price
+                - resource_needed
+
+      responses:
+        '200':
+          description: Service added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Service added successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data."
+
+  /api/admin/setemploy:
+    post:
+      summary: Adds a new employee to the system.
+      description: Adds employee details, including an optional image.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fristName:
+                  type: string
+                  description: The first name of the employee.
+                  example: "John"
+                lastName:
+                  type: string
+                  description: The last name of the employee.
+                  example: "Doe"
+                email:
+                  type: string
+                  description: The email address of the employee.
+                  example: "john.doe@example.com"
+                phoneNumber:
+                  type: string
+                  description: The phone number of the employee.
+                  example: "1234567890"
+                image:
+                  type: string
+                  format: binary
+                  description: An optional image of the employee.
+                  example: "1001010001000010100"
+                role:
+                  type: string
+                  description: An role of the employee.
+                  example: "hair stilys"
+              required:
+                - firstName
+                - lastName
+                - email
+                - phoneNumber
+      responses:
+        '200':
+          description: Employee added successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee added successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data."
+
+  /api/admin/updateResource:
+    post:
+      summary: Updates an existing resource in the system.
+      description: Updates resource details based on the provided ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idPointer:
+                  type: string
+                  description: The ID of the resource to update.
+                  example: "ce994f62-f713-4ec9-8e84-7fb9e4dcbe29"
+                name:
+                  type: string
+                  description: Updated name of the resource.
+                  example: "New Soap"
+                model:
+                  type: string
+                  description: Updated model of the resource.
+                  example: "N123-2022"
+                amount:
+                  type: number
+                  description: Updated amount of the resource.
+                  example: 200
+                action:
+                  type: string
+                  description: Updated action for the resource.
+                  enum: [necessary, unnecessary]
+                  example: "unnecessary"
+                usage_amount:
+                  type: number
+                  description: Updated usage amount of the resource.
+                  example: 25
+              required:
+                - id
+      responses:
+        '200':
+          description: Resource updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Resource updated successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data."
+
+  /api/admin/updateServce:
+    post:
+      summary: Updates an existing service in the system.
+      description: Updates service details based on the provided ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ID of the service to update.
+                  example: "1234"
+                serviceName:
+                  type: string
+                  description: Updated name of the service.
+                  example: "Premium Cleaning Service"
+                serviceDescription:
+                  type: string
+                  description: Updated description of the service.
+                  example: "Premium cleaning for residential and commercial properties."
+                servicePrice:
+                  type: number
+                  description: Updated price of the service.
+                  example: 150.75
+              required:
+                - id
+      responses:
+        '200':
+          description: Service updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Service updated successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data."
+
+  /api/admin/updateEmploy:
+    post:
+      summary: Updates an existing employee in the system.
+      description: Updates employee details based on the provided ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ID of the employee to update.
+                  example: "5678"
+                firstName:
+                  type: string
+                  description: Updated first name of the employee.
+                  example: "Jane"
+                lastName:
+                  type: string
+                  description: Updated last name of the employee.
+                  example: "Doe"
+                email:
+                  type: string
+                  description: Updated email of the employee.
+                  example: "jane.doe@example.com"
+                phoneNumber:
+                  type: string
+                  description: Updated phone number of the employee.
+                  example: "9876543210"
+              required:
+                - id
+      responses:
+        '200':
+          description: Employee updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Employee updated successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data."
+
+  /api/admin/delete:
+    delete:
+      summary: Deletes a record from a table.
+      description: Deletes a record based on the provided table and ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                table:
+                  type: string
+                  description: The name of the table.
+                  example: "resource"
+                id:
+                  type: string
+                  description: The ID of the record to delete.
+                  example: "1234"
+              required:
+                - table
+                - id
+      responses:
+        '200':
+          description: Record deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Record deleted successfully."
+        '400':
+          description: Invalid request or missing required parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid table name or ID."
+  /api/admin/getResource:
+    get:
+      summary: Fetches the details of a specific resource.
+      description: Retrieves the details of a resource from the system using the provided ID.
+      parameters:
+        - name: id
+          in: query
+          description: The ID of the resource to retrieve.
+          required: true
+          schema:
+            type: string
+            example: "1234"
+      responses:
+        '200':
+          description: Resource retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "1234"
+                  name:
+                    type: string
+                    example: "Soap"
+                  model:
+                    type: string
+                    example: "S123-2056"
+                  amount:
+                    type: number
+                    example: 150
+                  action:
+                    type: string
+                    example: "necessary"
+                  usage_amount:
+                    type: number
+                    example: 20
+        '400':
+          description: Invalid ID or resource not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Resource not found with the given ID."
+
+  /api/admin/getService:
+    get:
+      summary: Fetches the details of a specific service.
+      description: Retrieves the details of a service from the system using the provided ID.
+      parameters:
+        - name: id
+          in: query
+          description: The ID of the service to retrieve.
+          required: true
+          schema:
+            type: string
+            example: "5678"
+      responses:
+        '200':
+          description: Service retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "5678"
+                  serviceName:
+                    type: string
+                    example: "Cleaning Service"
+                  serviceDescription:
+                    type: string
+                    example: "Cleans residential and commercial properties."
+                  servicePrice:
+                    type: number
+                    example: 120.5
+        '400':
+          description: Invalid ID or service not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Service not found with the given ID."

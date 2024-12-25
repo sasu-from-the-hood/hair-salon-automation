@@ -1,7 +1,7 @@
 const Database = require('./security/database/database');
 const JSONValidator = require('./security/validateData')
 const EmailService = require('./security/email_sms')
-const Logger = require('./logger');
+const Logger = require('./uitlls/logger');
 
 require('dotenv').config()
 

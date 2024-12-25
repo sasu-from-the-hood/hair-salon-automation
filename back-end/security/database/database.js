@@ -27,7 +27,7 @@ class Database {
             const [rows] = await this.pool.execute(query, params);
             return { data: rows, error: null, status: true };
         } catch (error) {
-            return { data: null, error, status: false };
+            return { data: null, error:  error.message, status: false };
         }
     }
 
@@ -39,14 +39,14 @@ class Database {
     async insertData(tableName, row) {
         const columns = Object.keys(row).join(',');
         const placeholders = Object.values(row).map(() => '?').join(',');
-        const query = `INSERT INTO ?? (${columns}) VALUES (${placeholders})`;
-        return await this.executeQuery(query, [tableName, ...Object.values(row)]);
+        const query = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+        return await this.executeQuery(query, [...Object.values(row)]);
     }
 
     async updateData(tableName, row, eq) {
         const setClause = Object.keys(row).map(col => `${col} = ?`).join(',');
-        const query = `UPDATE ?? SET ${setClause} WHERE ${eq.name} = ?`;
-        return await this.executeQuery(query, [...Object.values(row), tableName, eq.value]);
+        const query = `UPDATE ${tableName} SET ${setClause} WHERE ${eq.name} = ?`;
+        return await this.executeQuery(query, [...Object.values(row), eq.value]);
     }
 
     async upsertData(tableName, row) {
@@ -68,16 +68,16 @@ class Database {
     
 
     async deleteData(tableName, eq) {
-        const query = `DELETE FROM ?? WHERE ${eq.name} = ?`;
-        return await this.executeQuery(query, [tableName, eq.value]);
+        const query = `DELETE FROM ${tableName} WHERE ${eq.name} = ?`;
+        return await this.executeQuery(query, [ eq.value]);
     }
 
     async fetchDataByValue(tableName, conditions, logicalOperator = 'AND', selectColumn = '*') {
         const whereClause = Object.entries(conditions)
             .map(([col, val]) => `${col} = ?`)
             .join(` ${logicalOperator} `);
-        const query = `SELECT ${selectColumn} FROM ?? WHERE ${whereClause}`;
-        return await this.executeQuery(query, [tableName, ...Object.values(conditions)]);
+        const query = `SELECT ${selectColumn} FROM ${tableName} WHERE ${whereClause}`;
+        return await this.executeQuery(query, [ ...Object.values(conditions)]);
     }
 
     async callPostgresFunction(functionName, params) {
@@ -85,6 +85,20 @@ class Database {
         const query = `CALL ${functionName}(${placeholders})`;
         return await this.executeQuery(query, Object.values(params));
     }
+
+    async service_resources(rows, id) {
+        const placeholders = Object.entries(rows).map(() => '(?, ?, ?)').join(', ');
+        const values = Object.entries(rows).flatMap(([key, value]) => [id, key, value]);
+        const query = `
+            INSERT INTO service_resources (service_id, resource_id, quantity)
+            VALUES ${placeholders}
+        `;
+        return await this.executeQuery(query, values);
+    }
+    
+    
+    
+    
 }
 
 module.exports = Database;
